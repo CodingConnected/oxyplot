@@ -63,6 +63,24 @@ namespace ExampleLibrary
             return model;
         }
 
+        [Example("With labels (vertical bars)")]
+        public static PlotModel WithLabelsVerticalBars()
+        {
+            var model = WithLabels();
+
+            foreach (BarSeries s in model.Series)
+            {
+                s.XAxisKey = "values";
+                s.YAxisKey = "categories";
+            }
+            model.Axes[0].Position = AxisPosition.Bottom;
+            model.Axes[0].Key = "categories";
+            model.Axes[1].Position = AxisPosition.Left;
+            model.Axes[1].Key = "values";
+
+            return model;
+        }
+
         [Example("With labels (at an angle)")]
         public static PlotModel WithLabelsAtAnAngle()
         {
