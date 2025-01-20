@@ -63,24 +63,6 @@ namespace ExampleLibrary
             return model;
         }
 
-        [Example("With labels (vertical bars)")]
-        public static PlotModel WithLabelsVerticalBars()
-        {
-            var model = WithLabels();
-
-            foreach (BarSeries s in model.Series)
-            {
-                s.XAxisKey = "values";
-                s.YAxisKey = "categories";
-            }
-            model.Axes[0].Position = AxisPosition.Bottom;
-            model.Axes[0].Key = "categories";
-            model.Axes[1].Position = AxisPosition.Left;
-            model.Axes[1].Key = "values";
-
-            return model;
-        }
-
         [Example("With labels (at an angle)")]
         public static PlotModel WithLabelsAtAnAngle()
         {
@@ -98,6 +80,48 @@ namespace ExampleLibrary
         public static PlotModel WithLabelsXAxisReversed()
         {
             return WithLabels().ReverseXAxis();
+        }
+
+        [Example("With vertical bars")]
+        public static PlotModel WithVerticalBars()
+        {
+            var model = new PlotModel
+            {
+                Title = "With labels",
+            };
+
+            var rnd = new Random(1);
+            var series = new List<BarSeries>
+            {
+                new BarSeries { Title = "Base", XAxisKey = "values", YAxisKey = "categories" },
+                new BarSeries { Title = "Inside", XAxisKey = "values", YAxisKey = "categories" },
+                new BarSeries { Title = "Middle", XAxisKey = "values", YAxisKey = "categories" },
+                new BarSeries { Title = "Outside", XAxisKey = "values", YAxisKey = "categories" }
+            };
+
+            for (int i = 0; i < 4; i++)
+            {
+                foreach (var s in series)
+                {
+                    s.Items.Add(new BarItem() { Value = rnd.Next(-100, 100) });
+                }
+            }
+
+            var categoryAxis = new CategoryAxis { Position = AxisPosition.Bottom, Key = "categories" };
+            categoryAxis.Labels.Add("Category A");
+            categoryAxis.Labels.Add("Category B");
+            categoryAxis.Labels.Add("Category C");
+            categoryAxis.Labels.Add("Category D");
+            var valueAxis = new LinearAxis { Position = AxisPosition.Left, MinimumPadding = 0.06, MaximumPadding = 0.06, ExtraGridlines = new[] { 0d }, Key = "values" };
+
+            foreach (var s in series)
+            {
+                model.Series.Add(s);
+            }
+
+            model.Axes.Add(categoryAxis);
+            model.Axes.Add(valueAxis);
+            return model;
         }
 
         [Example("Stacked")]
