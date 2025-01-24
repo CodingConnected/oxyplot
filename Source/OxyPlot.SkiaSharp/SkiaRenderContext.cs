@@ -476,6 +476,29 @@ namespace OxyPlot.SkiaSharp
         }
 
         /// <summary>
+        /// Manually add a typeface to the context typeface cache
+        /// This may be needed for example in a WebAssembly context, where system fonts cannot be accessed. 
+        /// In such a case, fonts must be embedded in the app or library. This method allows loading fonts
+        /// from an arbitrary external lib, and enables caching of loaded fonts locally, in case multiple 
+        /// instances of SkiaRenderContext are instatiated.
+        /// </summary>
+        /// <param name="fontFamily">The font family name</param>
+        /// <param name="fontWeight">The weight of the font (eg.: 400 for Regular, 700 for Bold; these are the only ones OxyPlot actually uses)</param>
+        /// <param name="typeface">Typeface instance to be added to cache, typically loaded from some embedded resource, eg.: <code>var typeface = SKTypeface.FromStream(stream);</code></param>
+        /// <returns>True if succesful, false if typeface with this family name and weight was already in cache</returns>
+        public bool AddTypeface(string fontFamily, double fontWeight, SKTypeface typeface)
+        {
+            var fontDescriptor = new FontDescriptor(fontFamily, fontWeight);
+            if (!this.typefaceCache.ContainsKey(fontDescriptor))
+            {
+                this.typefaceCache[fontDescriptor] = typeface;
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
         /// Disposes managed resources.
         /// </summary>
         /// <param name="disposing">A value indicating whether this method is called from the Dispose method.</param>
@@ -867,7 +890,7 @@ namespace OxyPlot.SkiaSharp
             if (!this.typefaceCache.TryGetValue(fontDescriptor, out var typeface))
             {
                 typeface = SKTypeface.FromFamilyName(fontFamily, new SKFontStyle((int)fontWeight, (int)SKFontStyleWidth.Normal, SKFontStyleSlant.Upright));
-#if NETSTANDARD2_0_OR_GREATER
+
                 if (typeface.FamilyName != fontFamily) // requested font not found or is WASM
                 {
                     try
@@ -890,7 +913,6 @@ namespace OxyPlot.SkiaSharp
                         Debug.WriteLine($"Requested Font {fontFamily} could not be found, falling back to {typeface.FamilyName}");
                     }
                 }
-#endif
                 this.typefaceCache.Add(fontDescriptor, typeface);
             }
 
